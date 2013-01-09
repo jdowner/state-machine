@@ -4,11 +4,10 @@
 #include "State.h"
 #include "Context.h"
 
-#define ACTION(instance,function) \
-  [&](const Context& context) { instance.function(context); }
+using namespace std::tr1::placeholders;
 
-#define REQUIREMENT(instance,function) \
-  [&](const Context& context) -> bool { return instance.function(context); }
+#define CONNECT(function,instance) \
+  std::bind(&function,instance,_1)
 
 /**
  * A simple class to demonstrate state updates and transitions
@@ -85,19 +84,19 @@ int main(int argc, char** argv)
     State terminal("terminal");
 
     // Connect the states to corresponding functions
-    stateA.setUpdate(ACTION(foo, entry));
-    stateB.setUpdate(ACTION(foo, update));
-    stateB.setExit(ACTION(foo, exit));
+    stateA.setUpdate(CONNECT(Foo::entry, foo));
+    stateB.setUpdate(CONNECT(Foo::update, foo));
+    stateB.setExit(CONNECT(Foo::exit, foo));
 
     success.setUpdate(&success_fn);
     failure.setUpdate(&failure_fn);
 
     // Create transitions between states
     stateA.addTransition(isTrue<Context>, stateB);
-    stateB.addTransition(REQUIREMENT(foo, isItTimeToExit), stateC);
-    stateB.addTransition(REQUIREMENT(foo, isThereAProblem), success);
+    stateB.addTransition(CONNECT(Foo::isItTimeToExit, foo), stateC);
+    stateB.addTransition(CONNECT(Foo::isThereAProblem, foo), success);
     stateC.addTransition(isTrue<Context>, success);
-    stateD.addTransition(REQUIREMENT(foo, isThereAProblem), failure);
+    stateD.addTransition(CONNECT(Foo::isThereAProblem, foo), failure);
 
     success.addTransition(isTrue<Context>, terminal);
     failure.addTransition(isTrue<Context>, terminal);
