@@ -1,12 +1,14 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/bind.hpp>
 #include "State.h"
 #include "Context.h"
 
-#define CONNECT(function,instance) \
-  boost::bind(&function,(instance),_1)
+#define ACTION(instance,function) \
+  [&](const Context& context) { instance.function(context); }
+
+#define REQUIREMENT(instance,function) \
+  [&](const Context& context) -> bool { return instance.function(context); }
 
 /**
  * A simple class to demonstrate state updates and transitions
@@ -83,19 +85,19 @@ int main(int argc, char** argv)
     State terminal("terminal");
 
     // Connect the states to corresponding functions
-    stateA.setUpdate(CONNECT(Foo::entry, foo));
-    stateB.setUpdate(CONNECT(Foo::update, foo));
-    stateB.setExit(CONNECT(Foo::exit, foo));
+    stateA.setUpdate(ACTION(foo, entry));
+    stateB.setUpdate(ACTION(foo, update));
+    stateB.setExit(ACTION(foo, exit));
 
     success.setUpdate(&success_fn);
     failure.setUpdate(&failure_fn);
 
     // Create transitions between states
     stateA.addTransition(isTrue<Context>, stateB);
-    stateB.addTransition(CONNECT(Foo::isItTimeToExit, foo), stateC);
-    stateB.addTransition(CONNECT(Foo::isThereAProblem, foo), success);
+    stateB.addTransition(REQUIREMENT(foo, isItTimeToExit), stateC);
+    stateB.addTransition(REQUIREMENT(foo, isThereAProblem), success);
     stateC.addTransition(isTrue<Context>, success);
-    stateD.addTransition(CONNECT(Foo::isThereAProblem, foo), failure);
+    stateD.addTransition(REQUIREMENT(foo, isThereAProblem), failure);
 
     success.addTransition(isTrue<Context>, terminal);
     failure.addTransition(isTrue<Context>, terminal);
