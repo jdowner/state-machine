@@ -131,8 +131,7 @@ class State
 
     State nextState(const ContextType& context)
     {
-      typedef typename std::vector<TransitionType>::iterator Iterator;
-      for (Iterator it = impl->transitions.begin(); it != impl->transitions.end(); ++it)
+      for (auto it = impl->transitions.begin(); it != impl->transitions.end(); ++it)
       {
         if (it->isSatisfiedBy(context))
         {
