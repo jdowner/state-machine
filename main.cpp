@@ -83,12 +83,12 @@ int main(int argc, char** argv)
     State terminal("terminal");
 
     // Connect the states to corresponding functions
-    stateA.impl->onUpdate = CONNECT(Foo::entry, foo);
-    stateB.impl->onUpdate = CONNECT(Foo::update, foo);
-    stateB.impl->onExit = CONNECT(Foo::exit, foo);
+    stateA.setUpdate(CONNECT(Foo::entry, foo));
+    stateB.setUpdate(CONNECT(Foo::update, foo));
+    stateB.setExit(CONNECT(Foo::exit, foo));
 
-    success.impl->onUpdate = &success_fn;
-    failure.impl->onUpdate = &failure_fn;
+    success.setUpdate(&success_fn);
+    failure.setUpdate(&failure_fn);
 
     // Create transitions between states
     stateA.addTransition(isTrue<Context>, stateB);

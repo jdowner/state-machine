@@ -96,6 +96,16 @@ class State
       return impl.get() == 0;
     }
 
+    void setUpdate(const Action& action)
+    {
+      impl->onUpdate = action;
+    }
+
+    void setExit(const Action& action)
+    {
+      impl->onExit = action;
+    }
+
     void setParent(const State<ContextType>& parent)
     {
       impl->parent = parent;
