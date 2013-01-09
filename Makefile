@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -g -std=c++0x
 LDFLAGS=
 
 HDR=$(wildcard *.h)
