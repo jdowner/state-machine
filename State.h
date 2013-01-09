@@ -1,8 +1,8 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <string>
 #include <map>
 #include <vector>
@@ -43,7 +43,7 @@ template <typename ContextType>
 class State
 {
   public:
-    typedef boost::function<void(const ContextType&)> Action;
+    typedef std::function<void(const ContextType&)> Action;
     typedef Transition<ContextType> TransitionType;
 
     /**
@@ -111,7 +111,7 @@ class State
       impl->parent = parent;
     }
 
-    void addTransition(const boost::function<bool(const ContextType&)>& condition, const State& state)
+    void addTransition(const std::function<bool(const ContextType&)>& condition, const State& state)
     {
       TransitionType transition;
       transition.isSatisfiedBy = condition;
@@ -155,7 +155,7 @@ class State
       return *this;
     }
 
-    boost::shared_ptr<Impl> impl;
+    std::shared_ptr<Impl> impl;
 };
 
 /**
@@ -166,7 +166,7 @@ template <typename ContextType>
 class Transition
 {
   public:
-    typedef boost::function<bool(const ContextType&)> Requirement;
+    typedef std::function<bool(const ContextType&)> Requirement;
 
   public:
     Transition()
