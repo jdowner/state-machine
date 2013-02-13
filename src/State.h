@@ -43,8 +43,10 @@ template <typename ContextType>
 class State
 {
   public:
-    typedef std::function<void(const ContextType&)> Action;
     typedef Transition<ContextType> TransitionType;
+    typedef State<ContextType> StateType;
+    typedef std::function<void(const ContextType&)> Action;
+    typedef std::function<bool(const ContextType&)> Requirement;
 
     /**
      * This is the data contained by the state. It is memory that can be shared
@@ -52,7 +54,7 @@ class State
      */
     struct Impl
     {
-      State<ContextType> parent;
+      StateType parent;
       Action onUpdate;
       Action onExit;
       std::string id;
@@ -71,22 +73,22 @@ class State
       impl->id = id;
     }
 
-    State(const State& state) : impl(state.impl)
+    State(const StateType& state) : impl(state.impl)
     {
     }
 
-    State& operator= (const State& state)
+    StateType& operator= (const StateType& state)
     {
       impl = state.impl;
       return *this;
     }
 
-    bool operator== (const State& state) const
+    bool operator== (const StateType& state) const
     {
       return (impl == state.impl);
     }
 
-    bool operator!= (const State& state) const
+    bool operator!= (const StateType& state) const
     {
       return (impl != state.impl);
     }
@@ -106,15 +108,15 @@ class State
       impl->onExit = action;
     }
 
-    void setParent(const State<ContextType>& parent)
+    void setParent(const StateType& parent)
     {
       impl->parent = parent;
     }
 
-    void addTransition(const std::function<bool(const ContextType&)>& condition, const State& state)
+    void addTransition(const Requirement& requirement, const StateType& state)
     {
       TransitionType transition;
-      transition.isSatisfiedBy = condition;
+      transition.isSatisfiedBy = requirement;
       transition.destination = state;
       impl->transitions.push_back(transition);
     }
@@ -165,7 +167,8 @@ template <typename ContextType>
 class Transition
 {
   public:
-    typedef std::function<bool(const ContextType&)> Requirement;
+    typedef State<ContextType> StateType;
+    typedef typename StateType::Requirement Requirement;
 
   public:
     Transition()
@@ -175,7 +178,7 @@ class Transition
     }
 
     Requirement isSatisfiedBy;
-    State<ContextType> destination;
+    StateType destination;
 };
 
 #endif // STATE_H

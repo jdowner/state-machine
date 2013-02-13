@@ -1,13 +1,13 @@
 
+#include <functional>
 #include <stdexcept>
 #include <iostream>
 #include "State.h"
 #include "Context.h"
 
-using namespace std::tr1::placeholders;
+using namespace std::placeholders;
 
-#define CONNECT(function,instance) \
-  std::bind(&function,instance,_1)
+#define CONNECT(function,instance) std::bind(&function,instance,_1)
 
 /**
  * A simple class to demonstrate state updates and transitions
